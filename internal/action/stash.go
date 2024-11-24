@@ -13,6 +13,7 @@ import (
 	"github.com/hectorgimenez/d2go/pkg/data/object"
 	"github.com/hectorgimenez/d2go/pkg/nip"
 	"github.com/hectorgimenez/koolo/internal/action/step"
+	"github.com/hectorgimenez/koolo/internal/config"
 	"github.com/hectorgimenez/koolo/internal/context"
 	"github.com/hectorgimenez/koolo/internal/event"
 	"github.com/hectorgimenez/koolo/internal/game"
@@ -186,7 +187,7 @@ func shouldStashIt(i data.Item, firstRun bool) (bool, string, string) {
 	}
 
 	// Stash items that are part of a recipe which are not covered by the NIP rules
-	if shouldKeepRecipeItem(i) {
+	if ShouldKeepRecipeItem(i) {
 		return true, "Item is part of a enabled recipe", ""
 	}
 
@@ -220,9 +221,10 @@ func shouldStashIt(i data.Item, firstRun bool) (bool, string, string) {
 	return false, "", ""
 }
 
-func shouldKeepRecipeItem(i data.Item) bool {
+// ShouldKeepRecipeItem checks if an item should be kept for cube recipes
+func ShouldKeepRecipeItem(i data.Item) bool {
 	ctx := context.Get()
-	ctx.SetLastStep("shouldKeepRecipeItem")
+	ctx.SetLastStep("ShouldKeepRecipeItem")
 
 	// No items with quality higher than magic can be part of a recipe
 	if i.Quality > item.QualityMagic {
@@ -244,7 +246,7 @@ func shouldKeepRecipeItem(i data.Item) bool {
 	recipeMatch := false
 
 	// Check if the item is part of a recipe and if that recipe is enabled
-	for _, recipe := range Recipes {
+	for _, recipe := range config.Recipes {
 		if slices.Contains(recipe.Items, string(i.Name)) && slices.Contains(ctx.CharacterCfg.CubeRecipes.EnabledRecipes, recipe.Name) {
 			recipeMatch = true
 			break

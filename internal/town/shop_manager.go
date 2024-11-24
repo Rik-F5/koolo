@@ -2,12 +2,14 @@ package town
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/hectorgimenez/d2go/pkg/data"
 	"github.com/hectorgimenez/d2go/pkg/data/item"
 	"github.com/hectorgimenez/d2go/pkg/data/stat"
 	"github.com/hectorgimenez/d2go/pkg/nip"
+	"github.com/hectorgimenez/koolo/internal/config"
 	"github.com/hectorgimenez/koolo/internal/context"
 	"github.com/hectorgimenez/koolo/internal/game"
 	"github.com/hectorgimenez/koolo/internal/ui"
@@ -181,9 +183,51 @@ func ItemsToBeSold() (items []data.Item) {
 			if _, result := ctx.Data.CharacterCfg.Runtime.Rules.EvaluateAll(itm); result == nip.RuleResultFullMatch && !itm.IsPotion() {
 				continue
 			}
+			// Don't sell items needed for enabled cube recipes
+			if ShouldKeepRecipeItem(itm) {
+				continue
+			}
 			items = append(items, itm)
 		}
 	}
 
 	return
+}
+
+// ShouldKeepRecipeItem checks if an item should be kept for cube recipes
+func ShouldKeepRecipeItem(i data.Item) bool {
+	ctx := context.Get()
+
+	// No items with quality higher than magic can be part of a recipe
+	if i.Quality > item.QualityMagic {
+		return false
+	}
+
+	itemInStashNotMatchingRule := false
+
+	// Check if we already have the item in our stash and if it doesn't match any of our pickit rules
+	for _, it := range ctx.Data.Inventory.ByLocation(item.LocationStash, item.LocationSharedStash) {
+		if it.Name == i.Name {
+			_, res := ctx.CharacterCfg.Runtime.Rules.EvaluateAll(it)
+			if res != nip.RuleResultFullMatch {
+				itemInStashNotMatchingRule = true
+			}
+		}
+	}
+
+	recipeMatch := false
+
+	// Check if the item is part of a recipe and if that recipe is enabled
+	for _, recipe := range config.Recipes {
+		if slices.Contains(recipe.Items, string(i.Name)) && slices.Contains(ctx.CharacterCfg.CubeRecipes.EnabledRecipes, recipe.Name) {
+			recipeMatch = true
+			break
+		}
+	}
+
+	if recipeMatch && !itemInStashNotMatchingRule {
+		return true
+	}
+
+	return false
 }

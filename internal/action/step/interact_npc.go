@@ -52,7 +52,7 @@ func InteractNPC(npcID npc.ID) error {
 			}
 
 			distance := ctx.PathFinder.DistanceFromMe(m.Position)
-			if distance > 15 {
+			if distance > 20 {
 				return fmt.Errorf("NPC is too far away: %d. Current distance: %d", npcID, distance)
 			}
 
