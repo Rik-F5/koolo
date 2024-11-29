@@ -108,6 +108,11 @@ func CubeTransmute() error {
 
 	utils.Sleep(300)
 
+	err = ensureCubeIsEmpty()
+	if err != nil {
+		return err
+	}
+
 	return step.CloseAllMenus()
 }
 
