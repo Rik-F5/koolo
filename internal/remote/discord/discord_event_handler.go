@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"context"
 	"image/jpeg"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/hectorgimenez/koolo/internal/config"
@@ -26,9 +29,10 @@ func (b *Bot) Handle(_ context.Context, e event.Event) error {
 		return err
 	}
 
-	_, err := b.discordSession.ChannelMessageSend(b.channelID, e.Message())
+	//_, err := b.discordSession.ChannelMessageSend(b.channelID, e.Message())
 
-	return err
+	//return err
+	return nil
 }
 
 func (b *Bot) shouldPublish(e event.Event) bool {
@@ -47,10 +51,49 @@ func (b *Bot) shouldPublish(e event.Event) bool {
 		if evt.Reason == event.FinishedError && !config.Koolo.Discord.EnableGameCreatedMessages {
 			return false
 		}
+	case event.RunFinishedEvent:
+		if evt.Reason == event.FinishedChicken && !config.Koolo.Discord.EnableDiscordChickenMessages {
+			return false
+		}
+		if evt.Reason == event.FinishedOK && !config.Koolo.Discord.EnableRunFinishMessages {
+			return false
+		}
+		if evt.Reason == event.FinishedError && !config.Koolo.Discord.EnableGameCreatedMessages {
+			return false
+		}
 	case event.GameCreatedEvent:
 		if !config.Koolo.Discord.EnableGameCreatedMessages {
 			return false
 		}
+	case event.RunStartedEvent:
+		if !config.Koolo.Discord.EnableGameCreatedMessages {
+			return false
+		}
+	case event.ItemStashedEvent:
+		if evt.Item.Item.Name == "" {
+			return false
+		}
+
+		// Check if item name is in blacklist
+		execPath, err := os.Executable()
+		if err != nil {
+			return true
+		}
+		execDir := filepath.Dir(execPath)
+		blacklistFile := filepath.Join(execDir, "config", "blacklist.txt")
+		if _, err := os.Stat(blacklistFile); err == nil {
+			content, err := os.ReadFile(blacklistFile)
+			if err == nil {
+				blacklistedItems := strings.Split(string(content), "\n")
+				itemName := strings.ToLower(string(evt.Item.Item.Name))
+				for _, item := range blacklistedItems {
+					if strings.Contains(itemName, strings.ToLower(strings.TrimSpace(item))) {
+						return false
+					}
+				}
+			}
+		}
+		return true
 	}
 
 	return true

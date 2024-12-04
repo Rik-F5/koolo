@@ -9,6 +9,8 @@ import (
 func PreRun(firstRun bool) error {
 	ctx := context.Get()
 
+	step.CloseAllMenus()
+
 	DropMouseItem()
 	step.SetSkill(skill.Vigor)
 	RecoverCorpse()
@@ -47,6 +49,9 @@ func InRunReturnTownRoutine() error {
 	ctx := context.Get()
 
 	ReturnTown()
+	step.CloseAllMenus()
+
+	DropMouseItem()
 	step.SetSkill(skill.Vigor)
 	RecoverCorpse()
 	ManageBelt()
