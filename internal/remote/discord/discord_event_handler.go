@@ -15,6 +15,15 @@ import (
 
 func (b *Bot) Handle(_ context.Context, e event.Event) error {
 	if b.shouldPublish(e) {
+
+		switch e.(type) {
+		case event.GameCreatedEvent, event.GameFinishedEvent, event.RunStartedEvent, event.RunFinishedEvent:
+			_, err := b.discordSession.ChannelMessageSend(b.channelID, e.Message())
+			return err
+		default:
+			break
+		}
+
 		buf := new(bytes.Buffer)
 		err := jpeg.Encode(buf, e.Image(), &jpeg.Options{Quality: 80})
 		if err != nil {
@@ -29,6 +38,7 @@ func (b *Bot) Handle(_ context.Context, e event.Event) error {
 		return err
 	}
 
+	return nil
 	//_, err := b.discordSession.ChannelMessageSend(b.channelID, e.Message())
 
 	//return err
@@ -36,9 +46,6 @@ func (b *Bot) Handle(_ context.Context, e event.Event) error {
 }
 
 func (b *Bot) shouldPublish(e event.Event) bool {
-	if e.Image() == nil {
-		return false
-	}
 
 	switch evt := e.(type) {
 	case event.GameFinishedEvent:
@@ -55,12 +62,10 @@ func (b *Bot) shouldPublish(e event.Event) bool {
 		if evt.Reason == event.FinishedChicken && !config.Koolo.Discord.EnableDiscordChickenMessages {
 			return false
 		}
-		if evt.Reason == event.FinishedOK && !config.Koolo.Discord.EnableRunFinishMessages {
-			return false
+		if evt.Reason == event.FinishedOK {
+			return false // supress game finished messages until we add proper option for it
 		}
-		if evt.Reason == event.FinishedError && !config.Koolo.Discord.EnableGameCreatedMessages {
-			return false
-		}
+		return true
 	case event.GameCreatedEvent:
 		if !config.Koolo.Discord.EnableGameCreatedMessages {
 			return false
@@ -96,5 +101,5 @@ func (b *Bot) shouldPublish(e event.Event) bool {
 		return true
 	}
 
-	return true
+	return e.Image() != nil
 }
