@@ -21,6 +21,7 @@ func PreRun(firstRun bool) error {
 	}
 
 	UpdateQuestLog()
+	step.CloseAllMenus()
 	IdentifyAll(firstRun)
 	VendorRefill(false, true)
 	Stash(firstRun)

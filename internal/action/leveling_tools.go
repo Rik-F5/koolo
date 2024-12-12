@@ -165,7 +165,7 @@ func UpdateQuestLog() error {
 
 	ctx.HID.PressKeyBinding(ctx.Data.KeyBindings.QuestLog)
 	utils.Sleep(1000)
-
+	ctx.HID.PressKeyBinding(ctx.Data.KeyBindings.QuestLog)
 	return step.CloseAllMenus()
 }
 func getAvailableSkillKB() []data.KeyBinding {
