@@ -85,7 +85,7 @@ func CubeRecipes() error {
 							// Check if we have a GrandCharm in stash that doesn't match any NIP rules
 							hasUnmatchedGrandCharm := false
 							for _, stashItem := range itemsInStash {
-								if stashItem.Name == "GrandCharm" || item.Name == "SmallCharm" || item.Name == "Monarch" {
+								if stashItem.Name == item.Name {
 									if _, result := ctx.CharacterCfg.Runtime.Rules.EvaluateAll(stashItem); result != nip.RuleResultFullMatch {
 										hasUnmatchedGrandCharm = true
 										break
