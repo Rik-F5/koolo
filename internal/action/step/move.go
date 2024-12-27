@@ -13,7 +13,7 @@ import (
 	"github.com/hectorgimenez/koolo/internal/utils"
 )
 
-const DistanceToFinishMoving = 4
+const DistanceToFinishMoving = 5
 
 func MoveTo(dest data.Position) error {
 	minDistanceToFinishMoving := DistanceToFinishMoving
