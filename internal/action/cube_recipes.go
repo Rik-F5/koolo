@@ -183,6 +183,11 @@ func hasItemsForReroll(ctx *context.Status, items []data.Item, recipe config.Cub
 				Item = itm
 			}
 		} else if isPerfectGem(itm) && len(perfectGems) < 3 {
+			// Skip perfect amethysts and rubies if configured
+			if (ctx.CharacterCfg.CubeRecipes.SkipPerfectAmethysts && itm.Name == "PerfectAmethyst") ||
+				(ctx.CharacterCfg.CubeRecipes.SkipPerfectRubies && itm.Name == "PerfectRuby") {
+				continue
+			}
 			perfectGems = append(perfectGems, itm)
 		}
 
