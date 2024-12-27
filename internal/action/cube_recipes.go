@@ -200,7 +200,7 @@ func hasItemsForReroll(ctx *context.Status, items []data.Item, recipe config.Cub
 }
 
 func isPerfectGem(item data.Item) bool {
-	perfectGems := []string{"PerfectAmethyst", "PerfectDiamond", "PerfectEmerald", "PerfectRuby", "PerfectSapphire", "PerfectTopaz", "PerfectSkull"}
+	perfectGems := []string{"PerfectDiamond", "PerfectEmerald", "PerfectRuby", "PerfectSapphire", "PerfectTopaz", "PerfectSkull"}
 
 	// Get context to check enabled recipes
 	ctx := context.Get()
