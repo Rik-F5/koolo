@@ -65,6 +65,9 @@ func (b *Bot) shouldPublish(e event.Event) bool {
 		if evt.Reason == event.FinishedOK {
 			return false // supress game finished messages until we add proper option for it
 		}
+		if evt.Reason == event.FinishedError && !config.Koolo.Discord.EnableGameCreatedMessages {
+			return false
+		}
 		return true
 	case event.GameCreatedEvent:
 		if !config.Koolo.Discord.EnableGameCreatedMessages {
