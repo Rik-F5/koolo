@@ -200,35 +200,13 @@ func hasItemsForReroll(ctx *context.Status, items []data.Item, recipe config.Cub
 }
 
 func isPerfectGem(item data.Item) bool {
-	perfectGems := []string{"PerfectDiamond", "PerfectEmerald", "PerfectRuby", "PerfectSapphire", "PerfectTopaz", "PerfectSkull"}
-
-	// Get context to check enabled recipes
-	ctx := context.Get()
-
-	// If recipes are enabled, remove gems that are mentioned in enabled recipes
-	if ctx.CharacterCfg.CubeRecipes.Enabled {
-		for _, recipe := range config.Recipes {
-			// Skip if recipe is not enabled
-			if !slices.Contains(ctx.CharacterCfg.CubeRecipes.EnabledRecipes, recipe.Name) {
-				continue
-			}
-
-			// Check if any perfect gems are mentioned in recipe items
-			for _, recipeItem := range recipe.Items {
-				beforeLen := len(perfectGems)
-				perfectGems = slices.DeleteFunc(perfectGems, func(gem string) bool {
-					return gem == recipeItem
-				})
-				if len(perfectGems) != beforeLen {
-					ctx.Logger.Debug("Removed gem from perfect gems list", "recipe", recipe.Name, "gem", recipeItem, "remaining_gems", perfectGems)
-				}
-			}
+	perfectGems := []string{"PerfectAmethyst", "PerfectDiamond", "PerfectEmerald", "PerfectRuby", "PerfectSapphire", "PerfectTopaz", "PerfectSkull"}
+	for _, gemName := range perfectGems {
+		if string(item.Name) == gemName {
+			return true
 		}
 	}
-
-	// Check if the item is in the remaining perfect gems list
-	isGemInList := slices.Contains(perfectGems, string(item.Name))
-	return isGemInList
+	return false
 }
 
 func removeUsedItems(stash []data.Item, usedItems []data.Item) []data.Item {
